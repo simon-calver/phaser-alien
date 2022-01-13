@@ -14,6 +14,9 @@ var gameScene = new GameScene();
 var endScene = new EndScene();
 
 
+console.log("instructions ...");
+
+
 
 
 //* Game scene */
