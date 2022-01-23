@@ -9,7 +9,7 @@ export default class TitleScene extends Phaser.Scene {
   }
 
   create() {
-    var bg = this.add.sprite(0, 0, 'background_1');
+    var bg = this.add.sprite(0, 0, 'background');
     bg.setOrigin(0, 0);
 
     var startText = this.add.text(100, 100, 'Start Game');
