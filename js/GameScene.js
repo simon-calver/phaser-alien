@@ -14,29 +14,210 @@ export default class GameScene extends Phaser.Scene {
     this.dragon_move = 1;
     this.score_text;
     this.lives_text;
+
+    this.beamForce = 0.003;
   };
 
   preload() {
-    // lets preload some images that we can use in our game (add these to the preloader)
-    // this.load.image('background', 'images/tut/background.png');
-    // this.load.image('player', 'phaser-alien/assets/.png');
-    // this.load.image('dragon', 'images/tut/pet_dragon_new.png');
-    // this.load.image('gold', 'images/tut/icon.png');
-    this.load.spritesheet('rat', 'phaser-alien/assets/$Rat.png', { frameWidth: 26, frameHeight: 26 });
-
+    this.load.image('crate', 'phaser-alien/assets/crate.png');
     this.loadMap();
   }
 
   create() {
+    const startPoint = this.buildMap();
+
+    //create raycaster
+    let raycaster = this.raycasterPlugin.createRaycaster();
+
+    //create ray
+    this.ray = raycaster.createRay({
+      origin: {
+        x: 60,
+        y: 20
+      }
+    })
+
+    //enable matter physics body
+    this.ray.enablePhysics('matter');
+    this.ray.autoSlice = true;
+
+    //map obstacles, neccessary
+    raycaster.mapGameObjects(this.obstacles.getChildren(), true, {
+      type: 'MatterBody'
+    });
+    raycaster.mapGameObjects(this.mapLayer, false, {
+      collisionTiles: [1, 2] //array of tile types which collide with rays
+    });
+
+    //set ray cone size (angle)
+    this.ray.setConeDeg(60);
+    this.ray.setAngleDeg(90);
+    this.ray.setCollisionRange(200);
+
+    //cast ray in a cone
+    this.intersections = this.ray.castCone();
+
+    //get field of view slices
+    // let slices = this.ray.slicedIntersections; // why are there none???
+    // console.log(slices);
+    //draw rays
+    this.graphics = this.add.graphics({ lineStyle: { width: 1, color: 0x00ff00 }, fillStyle: { color: 0xffffff, alpha: 0.3 } });
+    this.draw();
+
+
+    // // make obstacked ynamic
+    // for (let obstacle of this.obstacles.getChildren()) {
+    //   // console.log()
+    //   //get map
+    //   let map = obstacle.data.get('raycasterMap')
+    //   //toggle map update
+    //   map.dynamic = true;
+
+    // }
+
+    //redraw on mouse move
+    this.input.on('pointermove', function (pointer) {
+      //set ray position
+      this.ray.setOrigin(pointer.x, pointer.y);
+      //cast ray in all directions
+
+      // this.intersections = this.ray.castCone();
+
+      // // this.intersections = this.ray.castCircle();
+      // //redraw
+      // this.draw();
+    }, this);
+
+
+    this.input.on('pointerdown', function (pointer) {
+      // this.beam(pointer)
+      console.log(pointer.position)
+      this.timer = this.time.addEvent({
+        startAt: 0,
+        delay: 20,
+        loop: true,
+        callback: () => {
+          this.beam(pointer)
+        }
+      }, this);
+    }, this);
+
+    this.input.on('pointerup', function (pointer) {
+      this.timer.remove();
+    }, this);
+
+
+
+    // this.input.on('pointerdown', function (pointer) {
+
+    //   for (var [index, object] of this.obstacles.getChildren().entries()) {
+    //     if (this.ray.testMatterOverlap(object)) {
+    //       // console.log(object.getCenter())
+    //       // console.log(pointer.position); //.subtract(object.getCenter()));
+    //       // console.log(pointer.position.subtract(object.getCenter()).normalize().scale(0.03));
+    //       const forceToPointer = pointer.position.subtract(object.getCenter()).normalize().scale(this.beamForce);
+    //       // console.log(forceToPointer)
+    //       object.applyForce(forceToPointer)
+    //       // let Phaser.Math.Vector2(centre.x, centre.y);
+    //       // object.accelerateTo(pointer.x, pointer.y, 30)
+    //       // object.applyForce({ x: 0, y: -0.03 });
+    //     }
+    //   }
+
+    //   //   let body = object.body;
+    //   //   let parts = body.parts.length > 1 ? body.parts.splice(1) : body.parts;
+    //   //   for (let part of parts) {
+    //   //     let pointA = part.vertices[0];
+
+    //   //     for (let i = 1, length = part.vertices.length; i < length; i++) {
+    //   //       let pointB = part.vertices[i];
+    //   //       let segment = new Phaser.Geom.Line(pointA.x, pointA.y, pointB.x, pointB.y);
+    //   //       // console.log(segment)
+    //   //       //iterate through field of view slices to check collisions with target
+    //   //       console.log(this.ray.slicedIntersections)
+    //   //       for (let slice of this.ray.slicedIntersections) {
+    //   //         // console.log(slice)
+    //   //         let overlap = Phaser.Geom.Intersects.TriangleToLine(slice, segment);
+    //   //         //additional checking if slice contain segment's points due to TriangleToLine bug.
+    //   //         if (!overlap)
+    //   //           overlap = Phaser.Geom.Triangle.ContainsPoint(slice, segment.getPointA());
+    //   //         if (!overlap)
+    //   //           overlap = Phaser.Geom.Triangle.ContainsPoint(slice, segment.getPointB());
+
+    //   //         if (overlap) {
+    //   //           console.log("SSSSSSSSSSSSSSSSSS")
+    //   //           // return true;
+    //   //         }
+    //   //       }
+    //   //       pointA = pointB;
+    //   //     }
+
+    //   //   }
+
+
+    //   // console.log(parts)
+    //   // if (object.type === 'body')
+    //   //   console.log("body")
+    //   // else if (object.body !== undefined)
+    //   //   console.log("undefined")
+    //   // else
+    //   //   console.log("false")
+
+
+    //   // console.log(object)
+    //   // console.log(this.ray.testMatterOverlap(object)); //overlap(enemyGroup))
+    //   // }
+
+    //   // let visibleObjects = this.ray.overlap(this.obstacles.getChildren()); // this doesn't work
+
+    //   // for (let ind in this.obstacles.getChildren()) {
+    //   //   console.log(this.obstacles[ind])
+    //   // }
+
+
+    //   // let visibleObjects = this.ray.overlap(this.obstacles.getChildren()); // this doesn't work
+
+    //   // // console.log(visibleObjects);
+    //   // for (let intersection in this.intersections) {
+    //   //   console.log(intersection);
+    //   // }
+    //   // console.log(this.intersections);
+
+    //   // console.log(this.ray.overlap(this.oo))
+    //   // if (pointer.rightButtonDown()) {
+    //   //   this.switchWeapons();
+    //   // } else {
+    //   //   if (this.weaponEquipped && !this.overItem && this.weapon.canAttack()){ 
+    //   //     this.weapon.attack(pointer); // startAt 0 doesn't do what I want so run the callback once before the timer
+    //   //     this.timer = this.scene.time.addEvent({
+    //   //       startAt: 0,
+    //   //       delay: this.weapon.attackSpeed,
+    //   //       loop: true,
+    //   //       callback: () => {
+    //   //         this.weapon.attack(pointer)
+    //   //       }
+    //   //     }, this);                      
+    //   //   }
+    //   // }      
+    // }, this);
+
+
 
     // this.rat = this.matter.add.sprite(300, 20, 'rat', 1, {
     //   restitution: 1,
     //   friction: 0.25,
     //   shape: "circle"
     // }); //, { shape: spritePhysics.plane });
-    // // var rat = this.add.sprite(60, 20, 'rat');
+    // // // var rat = this.add.sprite(60, 20, 'rat');
+    // this.targetsCategory = this.matter.world.nextCategory();
 
-    const startPoint = this.buildMap();
+    // let target = this.add.rectangle(450, 50, 50, 50)
+    //   .setFillStyle(0x00ff00);
+    // this.matter.add.gameObject(target);
+    // // target.setCollisionCategory(this.targetsCategory)
+
+    // this.target = target;
+    // const startPoint = this.buildMap();
 
     // var image = this.add.image(60, 20, 'PSF_A5_Lodge');
 
@@ -89,41 +270,57 @@ export default class GameScene extends Phaser.Scene {
     // this.gold.setScale(0.5);
 
 
-    //create raycaster
-    let raycaster = this.raycasterPlugin.createRaycaster();
+    // //create raycaster
+    // let raycaster = this.raycasterPlugin.createRaycaster();
 
-    //create ray
-    this.ray = raycaster.createRay({
-      origin: {
-        x: 60,
-        y: 20
-      }
-    })
+    // //create ray
+    // this.ray = raycaster.createRay({
+    //   origin: {
+    //     x: 60,
+    //     y: 20
+    //   }
+    // })
 
-    //enable matter physics body
-    this.ray.enablePhysics('matter');
+    // //enable matter physics body
+    // this.ray.enablePhysics('matter');
 
-    //map obstacles
-    raycaster.mapGameObjects(this.obstacles.getChildren());
+    // //map obstacles
+    // raycaster.mapGameObjects(this.obstacles.getChildren());
+    // raycaster.mapGameObjects(this.mapLayer, false, {
+    //   collisionTiles: [1, 2] //array of tile types which collide with rays
+    // });
 
-    //set ray cone size (angle)
-    this.ray.setConeDeg(60);
-    this.ray.setAngleDeg(90);
-    //cast ray in a cone
-    this.intersections = this.ray.castCone();
+    // this.oo = this.matter.add.sprite(300, 20, 'rat'); //this.add.image(150, 100, 'crate');
+    // raycaster.mapGameObjects(this.oo);
 
-    // this.intersections = this.ray.castCircle();
-
-    //draw rays
-    this.graphics = this.add.graphics({ lineStyle: { width: 1, color: 0x00ff00 }, fillStyle: { color: 0xffffff, alpha: 0.3 } });
-    this.draw();
+    // // raycaster.mapGameObjects(target);
 
 
-    this.ray.setOnCollide(function (collisionInfo) {
-      //get body
-      // let body = collisionInfo.bodyA.label === 'phaser-raycaster-ray-body' ? collisionInfo.bodyB : collisionInfo.bodyA;
-      console.log("AAAAAA");
-    });
+    // //set ray cone size (angle)
+    // this.ray.setConeDeg(60);
+    // this.ray.setAngleDeg(90);
+    // //cast ray in a cone
+    // this.intersections = this.ray.castCone();
+
+
+    // this.ray.setCollisionRange(200);
+
+    // // this.intersections = this.ray.castCircle();
+
+    // //draw rays
+    // this.graphics = this.add.graphics({ lineStyle: { width: 1, color: 0x00ff00 }, fillStyle: { color: 0xffffff, alpha: 0.3 } });
+    // this.draw();
+
+    // createTargets(this);
+
+    // this.ray.setCollidesWith(this.targetsCategory);//this.obstacles.getChildren());//
+    // // console.log(this.targetsCategory);
+
+    // this.ray.setOnCollide(function (collisionInfo) {
+    //   //get body
+    //   // let body = collisionInfo.bodyA.label === 'phaser-raycaster-ray-body' ? collisionInfo.bodyB : collisionInfo.bodyA;
+    //   console.log("AAAAAA");
+    // });
 
     //add onCollideWith event
     // this.ray.setOnCollideWith(body, function (body, collisionInfo) {
@@ -133,40 +330,56 @@ export default class GameScene extends Phaser.Scene {
     //   */
     // });
 
-    //redraw on mouse move
-    this.input.on('pointermove', function (pointer) {
-      //set ray position
-      this.ray.setOrigin(pointer.x, pointer.y);
-      //cast ray in all directions
+    // //redraw on mouse move
+    // this.input.on('pointermove', function (pointer) {
+    //   //set ray position
+    //   this.ray.setOrigin(pointer.x, pointer.y);
+    //   //cast ray in all directions
 
-      this.intersections = this.ray.castCone();
+    //   this.intersections = this.ray.castCone();
 
-      // this.intersections = this.ray.castCircle();
-      //redraw
-      this.draw();
-    }, this);
+    //   // this.intersections = this.ray.castCircle();
+    //   //redraw
+    //   this.draw();
+    // }, this);
 
-    this.input.on('pointerdown', function (pointer) {
-      let visibleObjects = this.ray.overlap();
+    // this.input.on('pointerdown', function (pointer) {
+    //   let visibleObjects = this.ray.overlap(this.oo); // this doesn't work
 
-      console.log(visibleObjects);
-      console.log(this.intersections);
-      // if (pointer.rightButtonDown()) {
-      //   this.switchWeapons();
-      // } else {
-      //   if (this.weaponEquipped && !this.overItem && this.weapon.canAttack()){ 
-      //     this.weapon.attack(pointer); // startAt 0 doesn't do what I want so run the callback once before the timer
-      //     this.timer = this.scene.time.addEvent({
-      //       startAt: 0,
-      //       delay: this.weapon.attackSpeed,
-      //       loop: true,
-      //       callback: () => {
-      //         this.weapon.attack(pointer)
-      //       }
-      //     }, this);                      
-      //   }
-      // }      
-    }, this);
+    //   console.log(visibleObjects);
+    //   // console.log(this.intersections);
+
+    //   // console.log(this.ray.overlap(this.oo))
+    //   // if (pointer.rightButtonDown()) {
+    //   //   this.switchWeapons();
+    //   // } else {
+    //   //   if (this.weaponEquipped && !this.overItem && this.weapon.canAttack()){ 
+    //   //     this.weapon.attack(pointer); // startAt 0 doesn't do what I want so run the callback once before the timer
+    //   //     this.timer = this.scene.time.addEvent({
+    //   //       startAt: 0,
+    //   //       delay: this.weapon.attackSpeed,
+    //   //       loop: true,
+    //   //       callback: () => {
+    //   //         this.weapon.attack(pointer)
+    //   //       }
+    //   //     }, this);                      
+    //   //   }
+    //   // }      
+    // }, this);
+  }
+
+  beam(pointer) {
+    console.log(pointer.position)
+
+
+    // do a different loop 
+    for (var [index, object] of this.obstacles.getChildren().entries()) {
+      if (this.ray.testMatterOverlap(object)) {
+        let pointerCopy = pointer.position.clone()
+        const forceToPointer = pointerCopy.subtract(object.getCenter()).normalize().scale(this.beamForce);
+        object.applyForce(forceToPointer)
+      }
+    }
   }
 
   draw() {
@@ -176,6 +389,7 @@ export default class GameScene extends Phaser.Scene {
     this.graphics.fillStyle(0xffffff, 0.3);
     this.graphics.fillPoints(this.intersections);
     for (let intersection of this.intersections) {
+      // console.log(intersection.object)
       this.graphics.strokeLineShape({
         x1: this.ray.origin.x,
         y1: this.ray.origin.y,
@@ -205,6 +419,11 @@ export default class GameScene extends Phaser.Scene {
 
   update() {
 
+    this.intersections = this.ray.castCone();
+
+    // this.intersections = this.ray.castCircle();
+    //redraw
+    this.draw();
     // // Is mouse click down?
     // if (this.input.activePointer.isDown) {
     //   // move player along the x-axis at a rate this.speed pixels
@@ -256,8 +475,6 @@ export default class GameScene extends Phaser.Scene {
 
 
   buildMap() {
-
-
     this.obstacles = this.add.group();
 
     // Create the tilemap from the json file made in Tiled
@@ -312,9 +529,9 @@ export default class GameScene extends Phaser.Scene {
       //   const mapLayer = map.createLayer(layer.name, tiles, 0, 0).setDepth(depth);
 
       // }
+      this.mapLayer = mapLayer;
     }
 
-    // this.mapLayer = this.mapLayer;
     // this.obstacles.add(this.mapLayer, true);
 
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
@@ -337,7 +554,9 @@ export default class GameScene extends Phaser.Scene {
     let matterItems = this.getObjectsByName(map, 'objects', 'box');
     for (let item of matterItems) {
 
-      this.obstacles.add(this.matter.add.sprite(item.x, item.y, 'rat', 1), true);
+      let oo = this.matter.add.sprite(item.x, item.y, 'crate');
+      // oo.setCollisionCategory(this.targetsCategory)
+      this.obstacles.add(oo, true);
       // , {
       // restitution: 1,
       //   friction: 0.25,
@@ -345,6 +564,15 @@ export default class GameScene extends Phaser.Scene {
       // }); //, { shape: spritePhysics.plane });
       // // var rat = this.add.sprite(60, 20, 'rat');
     }
+
+    // make these dynamic
+
+
+
+    // let obstacle = this.add.image(100, 100, 'crate');
+    // // console.log("object");
+    // // console.log(obstacle);
+    // this.obstacles.add(obstacle, true)
   }
 
 
