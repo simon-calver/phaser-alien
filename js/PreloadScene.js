@@ -25,13 +25,16 @@ export default class PreloadScene extends Phaser.Scene {
     this.load.on('complete', this.complete, { scene: this.scene });
 
     // Any Assets you want to load in
-    this.load.image('background', 'phaser-alien/assets/background.png');
+    // this.load.image('background', 'phaser-alien/assets/background.png');
     for (var i = 0; i < 30; i++) {
       this.load.image('background_' + i, 'images/tut/background.png');
     }
 
     this.load.json('tiledMapJson', 'phaser-alien/assets/tilemaps/alien.json');
     this.load.spritesheet('assistant', 'phaser-alien/assets/sprites/player/$Dr Frankenstien2.png', { frameWidth: 24, frameHeight: 32 });
+
+
+    this.load.image('background', 'phaser-alien/assets/stars.png');
 
   }
 

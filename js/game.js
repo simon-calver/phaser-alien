@@ -33,7 +33,7 @@ var config = {
       // Enable debug graphics, so we can see the bounds of each physics 
       // object in our scene. Note: this can slow things down, so be sure 
       // to turn it off when you aren't debugging
-      debug: true
+      // debug: true
     }
   },
   plugins: {
