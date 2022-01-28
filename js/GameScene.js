@@ -1,4 +1,5 @@
 import Player from "./player.js";
+import SpaceShip from "./spaceship.js";
 
 export default class GameScene extends Phaser.Scene {
 
@@ -15,7 +16,7 @@ export default class GameScene extends Phaser.Scene {
     this.score_text;
     this.lives_text;
 
-    this.beamForce = 0.0015;
+    // this.beamForce = 0.0015;
   };
 
   preload() {
@@ -27,120 +28,152 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
 
+
+
+
+
     // Background
     const background = this.add.image(400, 300, 'background');
     background.setScrollFactor(0);
 
-    this.spaceship = this.add.image(50, 50, 'spaceship').setDepth(100); //.setImmovable(true);
-    this.cameras.main.startFollow(this.spaceship);//, false, 0.5, 0.5);
-    // this.spaceship = this.matter.add.sprite(50, 50, 'spaceship').setIgnoreGravity(true); //.setImmovable(true);
-    // this.spaceship.body.setAllowGravity(false);
-
-    // let oo = this.add.image(200, 250, 'ground-tiles')
-
-
     const startPoint = this.buildMap();
 
-    //create raycaster
-    let raycaster = this.raycasterPlugin.createRaycaster();
+    this.spaceship = new SpaceShip(this, 0, 0);
 
-    //create ray
-    this.ray = raycaster.createRay({
-      origin: {
-        x: 60,
-        y: 20
-      }
-    })
+    // /////////////////////////////////////////////////////////////
+    // this.spaceship = this.add.image(50, 50, 'spaceship').setDepth(100); //.setImmovable(true);
+    // this.cameras.main.startFollow(this.spaceship);//, false, 0.5, 0.5);
+    // // this.spaceship = this.matter.add.sprite(50, 50, 'spaceship').setIgnoreGravity(true); //.setImmovable(true);
+    // // this.spaceship.body.setAllowGravity(false);
 
-    //enable matter physics body
-    this.ray.enablePhysics('matter');
-    this.ray.autoSlice = true; // needs this for overlap to work
+    // // let oo = this.add.image(200, 250, 'ground-tiles')
 
-    //map obstacles, neccessary
-    raycaster.mapGameObjects(this.obstacles.getChildren(), true, {
-      type: 'MatterBody'
-    }); // true is for dynamic 
-    raycaster.mapGameObjects(this.mapLayer, false, {
-      // type: 'MatterBody',
-      collisionTiles: [1, 4, 5, 6, 29, 30] //array of tile types which collide with rays
-    });
-    // ray map not use body shape from tiled so edge peices are ignored and light goes bhind them
-    // raycaster.mapGameObjects(oo);
-    //set ray cone size (angle)
-    this.ray.setConeDeg(30);
-    this.ray.setAngleDeg(90);
-    // this.ray.setCollisionRange(200);
 
-    //cast ray in a cone
-    this.intersections = this.ray.castCone();
+    // 
 
-    //draw rays
-    this.graphics = this.add.graphics({ lineStyle: { width: 1, color: 0x00ff00, alpha: 0.4 }, fillStyle: { color: 0xffffff, alpha: 0.3 } });
-    this.draw();
+    // //create raycaster
+    // let raycaster = this.raycasterPlugin.createRaycaster();
+
+    // //create ray
+    // this.ray = raycaster.createRay({
+    //   origin: {
+    //     x: 60,
+    //     y: 20
+    //   }
+    // })
+
+    // //enable matter physics body
+    // this.ray.enablePhysics('matter');
+    // this.ray.autoSlice = true; // needs this for overlap to work
+
+    // //map obstacles, neccessary
+    // raycaster.mapGameObjects(this.obstacles.getChildren(), true, {
+    //   type: 'MatterBody'
+    // }); // true is for dynamic 
+    // raycaster.mapGameObjects(this.mapLayer, false, {
+    //   // type: 'MatterBody',
+    //   collisionTiles: [1, 4, 5, 6, 29, 30] //array of tile types which collide with rays
+    // });
+    // // ray map not use body shape from tiled so edge peices are ignored and light goes bhind them
+    // // raycaster.mapGameObjects(oo);
+    // //set ray cone size (angle)
+    // this.ray.setConeDeg(30);
+    // this.ray.setAngleDeg(90);
+    // // this.ray.setCollisionRange(200);
+
+    // //cast ray in a cone
+    // this.intersections = this.ray.castCone();
+
+    // // console.log(this.intersections)
+    // //draw rays
+    // this.graphics = this.add.graphics()
+    // // {
+    // // lineStyle: { width: 1, color: 0x00ff00, alpha: 0.2 }, fillStyle: { color: 0xffffff, alpha: 0.3 }
+    // // });
+    // // this.graphics.lineGradientStyle(4, 0xeeffee, 0x00ff00, 0xeeffee, 0x00ff00, 0.1);
+
+    // this.draw();
+    // /////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
 
     //redraw on mouse move
-    this.input.on('pointermove', function (pointer) {
-      //set ray position
-      this.ray.setOrigin(pointer.x, pointer.y);
+    // this.input.on('pointermove', function (pointer) {
+    //   //set ray position
+    //   this.ray.setOrigin(pointer.x, pointer.y);
 
-      this.spaceship.setPosition(pointer.x, pointer.y);
-    }, this);
+    //   this.spaceship.setPosition(pointer.x, pointer.y);
+    // }, this);
 
 
-    this.input.on('pointerdown', function (pointer) {
-      // this.beam(pointer)
-      console.log(pointer.position)
-      this.timer = this.time.addEvent({
-        startAt: 0,
-        delay: 20,
-        loop: true,
-        callback: () => {
-          this.beam(pointer)
-        }
-      }, this);
-    }, this);
+    // this.input.on('pointerdown', function (pointer) {
+    //   // this.beam(pointer)
+    //   console.log(pointer.position)
+    //   this.timer = this.time.addEvent({
+    //     startAt: 0,
+    //     delay: 20,
+    //     loop: true,
+    //     callback: () => {
+    //       this.beam(pointer)
+    //     }
+    //   }, this);
+    // }, this);
 
-    this.input.on('pointerup', function (pointer) {
-      this.timer.remove();
-    }, this);
+    // this.input.on('pointerup', function (pointer) {
+    //   this.timer.remove();
+    // }, this);
   }
 
-  beam(pointer) {
-    // do a different loop iterator
-    for (var [index, object] of this.obstacles.getChildren().entries()) {
-      if (this.ray.testMatterOverlap(object)) {
-        let pointerCopy = pointer.position.clone()
-        const forceToPointer = pointerCopy.subtract(object.getCenter()).normalize().scale(this.beamForce);
-        object.applyForce(forceToPointer)
-      }
-    }
-  }
+  // beam(pointer) {
+  //   // do a different loop iterator
+  //   for (var [index, object] of this.obstacles.getChildren().entries()) {
+  //     if (this.ray.testMatterOverlap(object)) {
+  //       let pointerCopy = pointer.position.clone()
+  //       const forceToPointer = pointerCopy.subtract(object.getCenter()).normalize().scale(this.beamForce);
+  //       object.applyForce(forceToPointer)
+  //     }
+  //   }
+  // }
 
-  draw() {
-    //add ray origin to intersections to create full polygon
-    this.intersections.push(this.ray.origin);
-    this.graphics.clear();
-    this.graphics.fillStyle(0xffffff, 0.3);
-    this.graphics.fillPoints(this.intersections);
-    for (let intersection of this.intersections) {
-      // console.log(intersection.object)
-      this.graphics.strokeLineShape({
-        x1: this.ray.origin.x,
-        y1: this.ray.origin.y,
-        x2: intersection.x,
-        y2: intersection.y
-      });
-    }
-    this.graphics.fillStyle(0xff00ff);
-    this.graphics.fillPoint(this.ray.origin.x, this.ray.origin.y, 3);
-  }
+  // draw() {
+  //   //add ray origin to intersections to create full polygon
+  //   this.intersections.push(this.ray.origin);
+  //   this.graphics.clear();
+  //   this.graphics.fillStyle(0xffffff, 0.3);
+  //   // this.graphics.fillGradientStyle(1, 0xffffff, 0xffffff, 0xffffff, 0xffffff, 0.3, 0.8, 0.3, 0.8);
+  //   this.graphics.fillPoints(this.intersections);
+
+  //   this.graphics.lineGradientStyle(4, 0xeeffee, 0x00ff00, 0xeeffee, 0x00ff00, 0.1);
+
+  //   for (let intersection of this.intersections) {
+  //     // this.graphics.fillPoints([
+  //     //   new Phaser.Geom.Point(this.ray.origin.x, this.ray.origin.y),
+  //     //   new Phaser.Geom.Point(this.ray.origin.x, intersection.y),
+  //     //   new Phaser.Geom.Point(intersection.x, intersection.y),
+  //     //   new Phaser.Geom.Point(intersection.x, this.ray.origin.y),
+  //     //   new Phaser.Geom.Point(this.ray.origin.x, this.ray.origin.y)])
+  //     this.graphics.strokeLineShape({
+  //       x1: this.ray.origin.x,
+  //       y1: this.ray.origin.y,
+  //       x2: intersection.x,
+  //       y2: intersection.y
+  //     });
+  //   }
+  //   // this.graphics.fillStyle(0xff00ff);
+  //   // this.graphics.fillPoint(this.ray.origin.x, this.ray.origin.y, 3);
+  // }
 
   update() {
 
-    this.intersections = this.ray.castCone();
+    // this.intersections = this.ray.castCone();
 
-    //redraw
-    this.draw();
+    // //redraw
+    // this.draw();
 
 
   }
