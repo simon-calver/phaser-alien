@@ -1,0 +1,62 @@
+{
+	"textures": [
+		{
+			"image": "bridge-parts.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 132,
+				"h": 34
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "bridge-lower.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 64,
+						"h": 32
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 64,
+						"h": 32
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 64,
+						"h": 32
+					}
+				},
+				{
+					"filename": "bridge-upper.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 64,
+						"h": 32
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 64,
+						"h": 32
+					},
+					"frame": {
+						"x": 67,
+						"y": 1,
+						"w": 64,
+						"h": 32
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:fe8fc55682041877653e1b6091c9e2b1:1774a10f5b85aff21d6351dd0b6ed04e:bde616bca18082986048cf822adc204c$"
+	}
+}

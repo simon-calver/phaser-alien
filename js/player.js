@@ -45,7 +45,7 @@ export default class Player {
 
     const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
     const { width: w, height: h } = this.sprite;
-    const mainBody = Bodies.rectangle(0, 0, w * 0.6, h, { chamfer: { radius: 10 } });
+    const mainBody = Bodies.rectangle(0, 0, w * 0.6, h, { chamfer: { radius: 6 } });
     this.sensors = {
       bottom: Bodies.rectangle(0, h * 0.5, w * 0.25, 2, { isSensor: true }),
       left: Bodies.rectangle(-w * 0.35, 0, 2, h * 0.5, { isSensor: true }),
@@ -64,7 +64,13 @@ export default class Player {
       .setExistingBody(compoundBody)
       .setScale(2)
       .setFixedRotation() // Sets inertia to infinity so the player can't rotate
-      .setPosition(x, y);
+      .setPosition(x, y)
+      .setName('player');
+
+    //////////////////////////
+    this.mainBody = mainBody;
+    //////////////////////////
+
 
     // Track which sensors are touching something
     this.isTouching = { left: false, right: false, ground: false };
@@ -143,7 +149,7 @@ export default class Player {
     // --- Move the player horizontally ---
 
     // Adjust the movement so that the player is slower in the air
-    const moveForce = isOnGround ? 0.01 : 0.005;
+    const moveForce = isOnGround ? 0.005 : 0.0005;
 
     if (isLeftKeyDown) {
       sprite.setFlipX(true);
@@ -182,13 +188,13 @@ export default class Player {
     }
 
     // Update the animation/texture based on the state of the player's state
-    if (isOnGround) {
-      if (sprite.body.force.x !== 0) sprite.anims.play("player-run", true);
-      else sprite.anims.play("player-idle", true);
-    } else {
-      sprite.anims.stop();
-      sprite.setTexture("player", 10);
-    }
+    // if (isOnGround) {
+    //   if (sprite.body.force.x !== 0) sprite.anims.play("player-run", true);
+    //   else sprite.anims.play("player-idle", true);
+    // } else {
+    //   sprite.anims.stop();
+    //   sprite.setTexture("player", 10);
+    // }
   }
 
   destroy() {

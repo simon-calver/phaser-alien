@@ -29,6 +29,7 @@ export default class GameScene extends Phaser.Scene {
   create() {
 
 
+    this.player = new Player(this, 1872, 300);
 
 
 
@@ -37,8 +38,13 @@ export default class GameScene extends Phaser.Scene {
     background.setScrollFactor(0);
 
     const startPoint = this.buildMap();
+    // this.player = new Player(this, startPoint.x, startPoint.y);
+    this.cameras.main.startFollow(this.player.sprite, false, 0.5, 0.5);
 
     this.spaceship = new SpaceShip(this, 0, 0);
+
+
+    // this.add.image(startPoint.x + 40, startPoint.y, 'crate').setScale(0.3);
 
     // /////////////////////////////////////////////////////////////
     // this.spaceship = this.add.image(50, 50, 'spaceship').setDepth(100); //.setImmovable(true);
@@ -199,6 +205,7 @@ export default class GameScene extends Phaser.Scene {
 
   buildMap() {
     this.obstacles = this.add.group();
+    this.staticObstacles = this.add.group();
 
     // Create the tilemap from the json file made in Tiled
     const map = this.make.tilemap({ key: 'alien-map' });
@@ -229,6 +236,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Moveable objects are defined in Tiled
     this.addMatterItems(map);
+    this.createBridge(map);
 
     // The start point is set using a point object inside of Tiled 
     const { x, y } = map.findObject("objects", (obj) => obj.name === "start");
@@ -239,17 +247,78 @@ export default class GameScene extends Phaser.Scene {
   addMatterItems(map) {
 
 
+    let collectables = this.getObjectsByName(map, 'objects', 'collectable');
+    for (let collectable of collectables) {
+      let collectableObject = this.matter.add.image(collectable.x, collectable.y, 'crate').setScale(0.5); // use arcade phuysics??
+      this.obstacles.add(collectableObject, true);
 
-    let matterItems = this.getObjectsByName(map, 'objects', 'box');
-    for (let item of matterItems) {
+      collectableObject.setOnCollideWith(this.player.mainBody, pair => {
 
-      let oo = this.matter.add.sprite(item.x, item.y, 'crate');
-      // oo.setCollisionCategory(this.targetsCategory)
-      this.obstacles.add(oo, true);
+        console.log("GGIIG"); // Do something
+      });
 
+      // collectableObject.setOnCollide(pair => {
+      //   // console.log(pair)
+      //   // if (typeof variable === 'undefined') {
+      //   //   // variable is undefined
+      //   // }
+      //   console.log(pair);
+      //   // for (let object of [pair.gameObjectA, pair.gameObjectB]) {
+      //   //   // console.log(object);
+      //   //   // console.log(object.name);
+      //   //   if (object.name == 'player') {
+
+      //   //     // this.raycaster.removeMappedObjects(object);
+      //   //     // object.destroy();
+      //   //   }
+      //   // }
+      //   // console.log(pair)
+      //   // console.log(pair.bodyB)
+      // });
     }
 
 
+    // let matterItems = this.getObjectsByName(map, 'objects', 'box');
+    // for (let item of matterItems) {
+
+    //   let oo = this.matter.add.sprite(item.x, item.y, 'crate').setScale(1.5);
+    //   // oo.setCollisionCategory(this.targetsCategory)
+    //   this.obstacles.add(oo, true);
+
+    // }
+
+
+  }
+
+  createBridge(map) {
+    let bridgeData = this.getObjectsByName(map, 'objects', 'bridge')[0];
+
+    let bridgeShapes = this.cache.json.get('bridge-shapes');
+    let bridgeLength = bridgeData.width / 64; // make sure this is int
+
+    for (var i = 0; i < bridgeLength - 1; i++) {
+      // how st density>?????
+      let bridgeUpperPart = this.matter.add.sprite(bridgeData.x + 32 + i * 64, bridgeData.y + 8, 'bridge-parts', 'bridge-upper.png', { shape: bridgeShapes['bridge-upper'], isStatic: true, density: 1 });
+      let bridgeLowerPart = this.matter.add.sprite(bridgeData.x + (i + 1) * 64, bridgeData.y + 16, 'bridge-parts', 'bridge-lower.png', { shape: bridgeShapes['bridge-lower'], isStatic: true });
+
+      // Phaser.Matter.Body.setDensity(bridgeUpperPart.body, 10)
+
+      // // bridgeUpperPart.body.density = 10;
+      // console.log(bridgeUpperPart)
+      this.staticObstacles.add(bridgeUpperPart);
+      this.staticObstacles.add(bridgeLowerPart);
+    }
+    let bridgeUpperPart = this.matter.add.sprite(bridgeData.x + 32 + i * 64, bridgeData.y + 8, 'bridge-parts', 'bridge-upper.png', { shape: bridgeShapes['bridge-upper'], isStatic: true });
+
+    this.staticObstacles.add(bridgeUpperPart);
+
+
+
+    // ground.setPosition(bridgeStart.x + ground.centerOfMass.x + 32, bridgeStart.y + ground.centerOfMass.y);
+    // ground.body.setImmovable(true);
+    // let oo = this.matter.add.sprite(bridgeStart.x, bridgeStart.y, 'bridge-upper');
+
+    // for (let item of matterItems) {
   }
 
 

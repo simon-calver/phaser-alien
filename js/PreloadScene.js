@@ -35,6 +35,15 @@ export default class PreloadScene extends Phaser.Scene {
 
 
     this.load.image('background', 'phaser-alien/assets/stars.png');
+    // this.load.image('bridge-upper', 'phaser-alien/assets/bridge-upper.png');
+
+
+    // Load sprite sheet generated with TexturePacker
+    this.load.atlas('bridge-parts', 'phaser-alien/assets/bridge-parts.png', 'phaser-alien/assets/bridge-parts.json');
+
+    // Load body shapes from JSON file generated using PhysicsEditor
+    this.load.json('bridge-shapes', 'phaser-alien/assets/bridge-shapes.json');
+
 
   }
 
