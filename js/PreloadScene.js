@@ -30,19 +30,19 @@ export default class PreloadScene extends Phaser.Scene {
       this.load.image('background_' + i, 'images/tut/background.png');
     }
 
-    this.load.json('tiledMapJson', 'phaser-alien/assets/tilemaps/alien.json');
-    this.load.spritesheet('assistant', 'phaser-alien/assets/sprites/player/$Dr Frankenstien2.png', { frameWidth: 24, frameHeight: 32 });
+    this.load.json('tiledMapJson', 'assets/tilemaps/alien.json');
+    this.load.spritesheet('assistant', 'assets/sprites/player/$Dr Frankenstien2.png', { frameWidth: 24, frameHeight: 32 });
 
 
-    this.load.image('background', 'phaser-alien/assets/stars.png');
+    this.load.image('background', 'assets/stars.png');
     // this.load.image('bridge-upper', 'phaser-alien/assets/bridge-upper.png');
 
 
     // Load sprite sheet generated with TexturePacker
-    this.load.atlas('bridge-parts', 'phaser-alien/assets/bridge-parts.png', 'phaser-alien/assets/bridge-parts.json');
+    this.load.atlas('bridge-parts', 'assets/bridge-parts.png', 'assets/bridge-parts.json');
 
     // Load body shapes from JSON file generated using PhysicsEditor
-    this.load.json('bridge-shapes', 'phaser-alien/assets/bridge-shapes.json');
+    this.load.json('bridge-shapes', 'assets/bridge-shapes.json');
 
 
   }
