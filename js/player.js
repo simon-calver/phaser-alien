@@ -20,7 +20,7 @@ export default class Player {
     // });
 
     // Create the physics-based sprite that we will move around and animate
-    this.sprite = scene.matter.add.sprite(x, y, 'assistant', 0);
+    this.sprite = scene.matter.add.sprite(x, y, 'assistant', 0).setDepth(2);
 
     // The player's body is going to be a compound body that looks something like this:
     //

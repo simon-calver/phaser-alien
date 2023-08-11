@@ -20,8 +20,8 @@ export default class GameScene extends Phaser.Scene {
   };
 
   preload() {
-    this.load.image('crate', 'phaser-alien/assets/crate.png');
-    this.load.image('spaceship', 'phaser-alien/assets/spaceship.png');
+    this.load.image('crate', 'aliens/assets/crate.png');
+    this.load.image('spaceship', 'aliens/assets/spaceship.png');
 
     this.loadMap();
   }
@@ -196,10 +196,10 @@ export default class GameScene extends Phaser.Scene {
   loadMap() {
     const tiledMapJson = this.cache.json.get('tiledMapJson');
     for (var tileset of tiledMapJson.tilesets) {
-      this.load.image(tileset.name, `phaser-alien/assets/tilesets/${tileset.name}.png`);
+      this.load.image(tileset.name, `aliens/assets/tilesets/${tileset.name}.png`);
     }
 
-    this.load.tilemapTiledJSON('alien-map', 'phaser-alien/assets/tilemaps/alien.json');
+    this.load.tilemapTiledJSON('alien-map', 'aliens/assets/tilemaps/alien.json');
   }
 
 
